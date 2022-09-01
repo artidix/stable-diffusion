@@ -15,7 +15,7 @@ RUN conda update -y conda
 # i am using git clone instead during development of this dockerfile
 COPY . /app/ 
 RUN mkdir /app/outputs/
-RUN mkdir /app/weigths/
+RUN mkdir /app/weights/
 # RUN git clone https://github.com/CompVis/stable-diffusion.git /app/
 WORKDIR /app/
 RUN conda env create -f /app/environment.yaml -n ldm
@@ -25,7 +25,12 @@ RUN ln -s /root/miniconda3/envs/ldm/bin/python /usr/local/bin/python
 ENV PROMPT="a drawing of a giraffe riding a motorcycle in space"
 # trigger first download to prevent re-downloading in the future
 # the script will fail as we do not have the weights yet, therefore the exit 0 
-RUN python scripts/txt2img.py; exit 0 
+# RUN python scripts/txt2img.py; exit 0 
+# there are even more post install downloads. the image is really big anyways already, 
+# so i was thinking about just including the weights as well... open to your ideas!
+RUN wget https://github.com/DagnyT/hardnet/raw/master/pretrained/train_liberty_with_aug/checkpoint_liberty_with_aug.pth -P /root/.cache/torch/hub/checkpoints/checkpoint_liberty_with_aug.pth
+# and now just grab the weights as well
+RUN wget https://www.googleapis.com/storage/v1/b/aai-blog-files/o/sd-v1-4.ckpt?alt=media  -P weights/sd-v1-4.ckpt
 CMD [ "python", "scripts/txt2img.py", \
     "--prompt", "'$PROMPT'", "--plms", "--ckpt", "./weights/sd-v1-4.ckpt", "--skip_grid", \
     "--n_samples", "1", "--n_iter", "1"]

@@ -208,14 +208,14 @@ docker-compose up
 edit the last part of the command and hit enter
 
 ```
-docker run --it guestros/stable-diffusion:latest --gpus all -v ./weights/:/app/weigths/ -v ./outputs/:/app/outputs/ -e 'PROMPT="a dinosaur looking at a meteor"'
+docker run --it guestros/stable-diffusion:latest --gpus all -v ./weights/:/app/weights/ -v ./outputs/:/app/outputs/ -e 'PROMPT="a dinosaur looking at a meteor"'
 ```
 
 ### 3. interactive session
 
 An interactive session where you can type in your own commands and arguments
 ```
-docker run --it guestros/stable-diffusion:latest --gpus all -v ./weights/:/app/weigths/ -v ./outputs/:/app/outputs/
+docker run --it guestros/stable-diffusion:latest --gpus all -v ./weights/:/app/weights/ -v ./outputs/:/app/outputs/
 ```
 
 ## Comments 
