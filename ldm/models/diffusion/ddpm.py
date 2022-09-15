@@ -525,7 +525,7 @@ class LatentDiffusion(DDPM):
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
             model = instantiate_from_config(config)
-            self.cond_stage_model = model
+            self.cond_stage_model = model.half()
 
     def _get_denoise_row_from_list(self, samples, desc='', force_no_decoder_quantization=False):
         denoise_row = []
