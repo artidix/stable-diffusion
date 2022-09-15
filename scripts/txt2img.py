@@ -18,14 +18,14 @@ from ldm.util import instantiate_from_config
 from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.models.diffusion.plms import PLMSSampler
 
-from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
-from transformers import AutoFeatureExtractor
+# from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+# from transformers import AutoFeatureExtractor
 
 
-# load safety model
-safety_model_id = "CompVis/stable-diffusion-safety-checker"
-safety_feature_extractor = AutoFeatureExtractor.from_pretrained(safety_model_id)
-safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
+# # load safety model
+# safety_model_id = "CompVis/stable-diffusion-safety-checker"
+# safety_feature_extractor = AutoFeatureExtractor.from_pretrained(safety_model_id)
+# safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
 
 
 def chunk(it, size):
@@ -84,14 +84,14 @@ def load_replacement(x):
         return x
 
 
-def check_safety(x_image):
-    safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image), return_tensors="pt")
-    x_checked_image, has_nsfw_concept = safety_checker(images=x_image, clip_input=safety_checker_input.pixel_values)
-    assert x_checked_image.shape[0] == len(has_nsfw_concept)
-    for i in range(len(has_nsfw_concept)):
-        if has_nsfw_concept[i]:
-            x_checked_image[i] = load_replacement(x_checked_image[i])
-    return x_checked_image, has_nsfw_concept
+# def check_safety(x_image):
+#     safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image), return_tensors="pt")
+#     x_checked_image, has_nsfw_concept = safety_checker(images=x_image, clip_input=safety_checker_input.pixel_values)
+#     assert x_checked_image.shape[0] == len(has_nsfw_concept)
+#     for i in range(len(has_nsfw_concept)):
+#         if has_nsfw_concept[i]:
+#             x_checked_image[i] = load_replacement(x_checked_image[i])
+#     return x_checked_image, has_nsfw_concept
 
 
 def main():
@@ -314,22 +314,20 @@ def main():
 
                         x_samples_ddim = model.decode_first_stage(samples_ddim)
                         x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
-                        x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
-
-                        x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
-
-                        x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
+                        # x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+                        # x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                        #x_checked_image_torch = torch.from_numpy(x_samples_ddim).permute(0, 3, 1, 2)
 
                         if not opt.skip_save:
-                            for x_sample in x_checked_image_torch:
+                            for x_sample in x_samples_ddim:
                                 x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
                                 img = Image.fromarray(x_sample.astype(np.uint8))
-                                img = put_watermark(img, wm_encoder)
+                                # img = put_watermark(img, wm_encoder)
                                 img.save(os.path.join(sample_path, f"{base_count:05}.png"))
                                 base_count += 1
 
                         if not opt.skip_grid:
-                            all_samples.append(x_checked_image_torch)
+                            all_samples.append(x_samples_ddim)
 
                 if not opt.skip_grid:
                     # additionally, save as grid
