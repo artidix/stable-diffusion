@@ -10,13 +10,15 @@
  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
  
-    <title>WebSocker Client</title>
+    <title>Text2Img</title>
  
 </head>
  
 <body>
+    <img id="image" src="" alt="Italian Trulli"> <br/>
+    <input id="string" name="string"/>
  
-    <button onclick="contactServer">Click Here</button>
+    <button onclick="contactServer()">Generate</button>
  
 </body>
  
@@ -25,23 +27,20 @@
     const socket = new WebSocket('ws://localhost:8000');
  
 socket.addEventListener('open', function (event) {
- 
-    socket.send('Connection Established');
- 
+    //socket.send('Underground bunker , painted in black and white');
 });
  
  
  
 socket.addEventListener('message', function (event) {
- 
     console.log(event.data);
+    document.getElementById("image").setAttribute('src', event.data);
  
 });
  
-const contactServer = () => {
- 
-    socket.send("Initialize");
- 
+function contactServer() {
+    console.log("Sending to socket");
+    socket.send(document.getElementById("string").value);
 }
  
 </script>
